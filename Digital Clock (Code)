@@ -1,0 +1,22 @@
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <ctime>
+#include <cstdlib>
+
+int main() {
+    while (true) {
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+        std::tm* local_time = std::localtime(&now_time_t);
+
+        char buffer[80];
+        std::strftime(buffer, sizeof(buffer), "%H:%M:%S", local_time);
+
+        std::system("clear");
+        std::cout << "Current Time: " << buffer << "\n";
+        
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    return 0;
+}
