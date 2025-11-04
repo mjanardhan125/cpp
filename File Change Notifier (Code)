@@ -1,0 +1,43 @@
+#include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <thread>
+#include <chrono>
+
+namespace fs = std::filesystem;
+
+long get_file_size(const std::string& filename) {
+    try {
+        return fs::file_size(filename);
+    } catch (const fs::filesystem_error&) {
+        return -1; // File does not exist
+    }
+}
+
+int main() {
+    const std::string filename = "target.txt";
+    long initial_size = get_file_size(filename);
+    
+    if (initial_size == -1) {
+        std::cout << "Creating initial file: " << filename << "\n";
+        std::ofstream(filename).close(); // Create empty file
+        initial_size = 0;
+    }
+    
+    std::cout << "Monitoring file: " << filename << "\n";
+    std::cout << "Initial size: " << initial_size << " bytes\n";
+
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        
+        long current_size = get_file_size(filename);
+
+        if (current_size != initial_size && current_size != -1) {
+            std::cout << "\n[ALERT!] File " << filename << " has changed!\n";
+            std::cout << "Old Size: " << initial_size << " bytes, New Size: " << current_size << " bytes.\n";
+            
+            initial_size = current_size;
+        }
+    }
+    return 0;
+}
