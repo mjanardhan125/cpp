@@ -1,0 +1,51 @@
+#include <iostream>
+#include <fstream>
+#include <thread>
+#include <chrono>
+#include <ctime>
+#include <random>
+#include <iomanip>
+
+double get_simulated_temp(std::mt19937& gen) {
+    std::uniform_real_distribution<> distrib(20.0, 30.0);
+    return distrib(gen);
+}
+
+std::string get_current_time_str() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
+    
+    char buffer[80];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", std::localtime(&now_time_t));
+    return std::string(buffer);
+}
+
+int main() {
+    const std::string logfile = "sensor_data.log";
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::cout << "Logging simulated sensor data to " << logfile << "\n";
+    
+    while (true) {
+        double temp = get_simulated_temp(gen);
+        std::string timestamp = get_current_time_str();
+
+        // Append to file
+        std::ofstream outfile(logfile, std::ios_base::app);
+        if (outfile.is_open()) {
+            outfile << timestamp << " | Temperature: " 
+                    << std::fixed << std::setprecision(2) << temp << " C\n";
+            outfile.close();
+            
+            std::cout << "Logged: " << timestamp << ", " << temp << " C\n";
+        } else {
+            std::cerr << "Error opening log file!\n";
+        }
+
+        // Wait for 1 second before the next reading
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    return 0;
+}
