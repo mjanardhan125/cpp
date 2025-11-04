@@ -1,0 +1,53 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+enum Location { ROOM_A, ROOM_B, ROOM_C, EXIT };
+Location currentLocation = ROOM_A;
+bool hasKey = false;
+
+void describe_room() {
+    std::cout << "\n---\n";
+    if (currentLocation == ROOM_A) {
+        std::cout << "Dusty Storage Room. Look for KEY. Go NORTH.\n";
+    } else if (currentLocation == ROOM_B) {
+        std::cout << "Long Hallway. Go NORTH or SOUTH.\n";
+    } else if (currentLocation == ROOM_C) {
+        std::cout << "Exit Door. Door is " << (hasKey ? "UNLOCKED. ESCAPE." : "LOCKED.") << " Go SOUTH.\n";
+    }
+    std::cout << "---\n";
+}
+
+int main() {
+    describe_room();
+    std::string command;
+
+    while (currentLocation != EXIT) {
+        std::cout << ">> Enter command: ";
+        std::getline(std::cin, command);
+        std::transform(command.begin(), command.end(), command.begin(), ::toupper);
+
+        if (command == "QUIT") break;
+
+        if (currentLocation == ROOM_A) {
+            if (command == "GO NORTH") currentLocation = ROOM_B;
+            else if (command == "GET KEY") { hasKey = true; std::cout << "Key obtained!\n"; }
+            else std::cout << "Invalid action.\n";
+        } else if (currentLocation == ROOM_B) {
+            if (command == "GO NORTH") currentLocation = ROOM_C;
+            else if (command == "GO SOUTH") currentLocation = ROOM_A;
+            else std::cout << "Invalid action.\n";
+        } else if (currentLocation == ROOM_C) {
+            if (command == "ESCAPE" && hasKey) currentLocation = EXIT;
+            else if (command == "ESCAPE") std::cout << "The door is locked!\n";
+            else if (command == "GO SOUTH") currentLocation = ROOM_B;
+            else std::cout << "Invalid action.\n";
+        }
+        
+        if (currentLocation != EXIT) describe_room();
+    }
+
+    if (currentLocation == EXIT) std::cout << "\nSUCCESS! You escaped!\n";
+
+    return 0;
+}
