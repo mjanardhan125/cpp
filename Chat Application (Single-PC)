@@ -1,0 +1,47 @@
+#include <iostream>
+#include <string>
+#include <thread>
+#include <mutex>
+
+std::mutex console_mutex;
+
+void receive_thread() {
+    std::string received_message = "Hello from Client B!";
+    int count = 0;
+    while (count < 3) {
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        
+        std::lock_guard<std::mutex> lock(console_mutex);
+        std::cout << "\n[B]: " << received_message << "\n>> ";
+        count++;
+    }
+}
+
+void send_thread() {
+    std::string message;
+    while (true) {
+        {
+            std::lock_guard<std::mutex> lock(console_mutex);
+            std::cout << ">> ";
+        }
+        std::getline(std::cin, message);
+        
+        if (message == "quit") break;
+        
+        std::lock_guard<std::mutex> lock(console_mutex);
+        std::cout << "[You Sent]: " << message << "\n";
+    }
+}
+
+int main() {
+    std::cout << "Chat Simulator. Type 'quit' to exit.\n";
+
+    std::thread receiver(receive_thread);
+    std::thread sender(send_thread);
+    
+    sender.join();
+    receiver.detach();
+    
+    std::cout << "Chat session ended.\n";
+    return 0;
+}
