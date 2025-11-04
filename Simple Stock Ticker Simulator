@@ -1,0 +1,46 @@
+#include <iostream>
+#include <map>
+#include <string>
+#include <iomanip>
+#include <thread>
+#include <chrono>
+#include <cstdlib>
+#include <random>
+
+std::map<std::string, double> stock_prices = {
+    {"GOOGL", 150.00},
+    {"AAPL", 180.50},
+    {"MSFT", 400.75},
+    {"TSLA", 250.25}
+};
+
+void update_prices() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> distrib(-0.01, 0.01);
+
+    for (auto& pair : stock_prices) {
+        double change_factor = 1.0 + distrib(gen);
+        pair.second *= change_factor;
+        if (pair.second < 0.01) pair.second = 0.01; 
+    }
+}
+
+void draw_ticker() {
+    std::system("clear");
+    std::cout << "Ticker Feed:\n";
+    std::cout << std::fixed << std::setprecision(2);
+    
+    for (const auto& pair : stock_prices) {
+        std::cout << pair.first << ": $" << pair.second << "\n";
+    }
+}
+
+int main() {
+    while (true) {
+        update_prices();
+        draw_ticker();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    return 0;
+}
