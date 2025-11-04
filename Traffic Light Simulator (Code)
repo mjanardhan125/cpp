@@ -1,0 +1,23 @@
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <cstdlib>
+#include <string>
+
+void display_light(const std::string& color, int duration) {
+    for (int t = duration; t > 0; --t) {
+        std::system("clear");
+        std::cout << "Current Light: " << color << "\n";
+        std::cout << "Time Remaining: " << t << " seconds\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+int main() {
+    while (true) {
+        display_light("RED", 5);
+        display_light("GREEN", 7);
+        display_light("YELLOW", 2);
+    }
+    return 0;
+}
